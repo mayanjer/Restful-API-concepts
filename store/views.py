@@ -4,22 +4,25 @@ from django.db.models import Count
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.views import APIView
 from store.serializers import *
 from store.models import Product, Collection
 
 # Create your views here.
-
-@api_view(["GET", "POST"])
-def product_list(request):
-    if request.method == "GET":
+class ProductList(APIView):
+    def get(self, request):
         query_set = Product.objects.select_related('collection')
         serializer = ProductSerializer(query_set, many = True) 
         return Response(serializer.data)
-    elif request.method == "POST":
+    
+    def post(self, request):
         serializer = ProductSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
         print(serializer.validated_data)
         return Response("ok")
+        
+        
+
        
 @api_view(["GET", "PUT", "DELETE"])
 def product_detail(request, id):
@@ -47,7 +50,6 @@ def collection_list(request):
         return Response(serializer.data)
     elif request.method == "POST":
         serializer = CollectionSerializer(data = request.data)
-        
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)

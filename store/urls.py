@@ -11,7 +11,7 @@ admin.site.index_title = 'Admin'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('products/', product_list),
+    path('products/', ProductList.as_view()),
     path('products/<int:id>/', product_detail),
     
     # collections
