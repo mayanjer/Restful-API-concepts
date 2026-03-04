@@ -43,6 +43,7 @@ def collection_list(request):
     if request.method == "GET":
         queryset = Collection.objects.all().annotate(product_count = Count("products"))
         serializer = CollectionSerializer(queryset, many = True)
+        
         return Response(serializer.data)
     elif request.method == "POST":
         serializer = CollectionSerializer(data = request.data)
