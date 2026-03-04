@@ -9,7 +9,7 @@ from store.serializers import *
 from store.models import Product, Collection
 
 # Create your views here.
-class ProductList(APIView):
+class ProductList(APIView): # class based view
     def get(self, request):
         query_set = Product.objects.select_related('collection')
         serializer = ProductSerializer(query_set, many = True) 
@@ -44,7 +44,7 @@ class ProductDetail(APIView):
              
         
 @api_view(["GET", "POST"])
-def collection_list(request):
+def collection_list(request): #function based view
     if request.method == "GET":
         queryset = Collection.objects.all().annotate(product_count = Count("products"))
         serializer = CollectionSerializer(queryset, many = True)
