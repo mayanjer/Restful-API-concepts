@@ -47,6 +47,7 @@ def collection_list(request):
         return Response(serializer.data)
     elif request.method == "POST":
         serializer = CollectionSerializer(data = request.data)
+        
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
