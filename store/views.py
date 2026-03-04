@@ -15,32 +15,34 @@ class ProductList(APIView):
         serializer = ProductSerializer(query_set, many = True) 
         return Response(serializer.data)
     
-    def post(self, request):
+    def post(self, request): # this endpoint fails
         serializer = ProductSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.validated_data)
-        return Response("ok")
-        
-        
-
-       
-@api_view(["GET", "PUT", "DELETE"])
-def product_detail(request, id):
-    product = get_object_or_404(Product, pk = id)
-    if request.method == "GET":
+        return Response(serializer.data)
+    
+class ProductDetail(APIView):
+    def get(self, request, id):
+        product = get_object_or_404(Product, pk = id)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
-    elif request.method == "PUT":
+    
+    def put(self, request, id):
+        product = get_object_or_404(Product, pk = id)
         serializer = ProductSerializer(product, data = request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-    elif request.method == "DELETE":
+    
+    def delete(self, request, id):
+        product = get_object_or_404(Product, pk = id)
         if product.orderitem_set.count() > 0:
             return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status.HTTP_200_OK)
-    
+        
+        
+             
+        
 @api_view(["GET", "POST"])
 def collection_list(request):
     if request.method == "GET":
