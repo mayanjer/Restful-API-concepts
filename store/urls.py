@@ -11,25 +11,16 @@ admin.site.index_title = 'Admin'
 
 
 router = routers.DefaultRouter()
-router.register("products", ProductViewSet)
+router.register("products", ProductViewSet, basename="products")
 router.register('collections', CollectionViewSet)
 
 products_router = routers.NestedDefaultRouter(router, "products", lookup = "product")
 products_router.register("reviews", ReviewViewSet, basename="product-review")
 
-pprint(products_router.urls)
-
-
-
-
 urlpatterns = [
-    path('', include(router.urls + products_router.urls))
-    # path('admin/', admin.site.urls),
-    # path('products/', ProductList.as_view()),
-    # path('products/<int:pk>/', ProductDetail.as_view()),
+    path('', include(router.urls + products_router.urls)),
+    path('admin/', admin.site.urls),
+    path('carts/', CartViewSet.as_view()),
     
-    # # collections
-    # path('collections/', collection_list),
-    # path('collections/<int:pk>', CollectionDetail.as_view())
 ]
 

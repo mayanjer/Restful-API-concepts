@@ -1,27 +1,29 @@
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
-from django.db.models import Count
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework import status
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
+from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
 from store.serializers import *
-from store.models import Product, Collection
+from store.models import Product, Collection, Cart
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
-    
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["collection_id"]
+    search_fields = ["title", "description"]
+    ordering_fields = ["unit_price", "title"]
     
     def destroy(self, request, *args, **kwargs):
         product = get_object_or_404(Product, pk = self.kwargs["pk"])
         if product.orderitem_set.count() > 0:
             return Response({"error": "Product has a corresponding order item(s)"}, status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
+    
+   
     
 # class ProductList(ListCreateAPIView): # class based view
 #     # def get(self, request):
@@ -100,3 +102,8 @@ class ReviewViewSet(ModelViewSet):
     
     def get_serializer_context(self):
         return {"product_id": self.kwargs["product_pk"]}
+    
+class CartViewSet(CreateAPIView, DestroyAPIView, ListAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    
