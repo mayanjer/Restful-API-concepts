@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Collection
+from .models import Product, Collection, Review
 from decimal import Decimal
 
 class CollectionMiniSerializer(serializers.ModelSerializer):
@@ -39,3 +39,8 @@ class CollectionSerializer(serializers.ModelSerializer):
     
     def calculate_product_count(self, collection):
         return collection.products.count()
+    
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ["id", "product", "name", "description", "date"]

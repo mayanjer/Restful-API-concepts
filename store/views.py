@@ -5,47 +5,56 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from store.serializers import *
 from store.models import Product, Collection
 
 # Create your views here.
-class ProductList(APIView): # class based view
-    def get(self, request):
-        query_set = Product.objects.select_related('collection')
-        serializer = ProductSerializer(query_set, many = True) 
-        return Response(serializer.data)
-    
-    def post(self, request): # this endpoint fails
-        serializer = ProductSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data)
-    
-class ProductDetail(RetrieveUpdateDestroyAPIView):
+class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
-    def delete(self, request, pk):
-        product = get_object_or_404(Product, pk = pk)
+    def destroy(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, pk = self.kwargs["pk"])
         if product.orderitem_set.count() > 0:
             return Response({"error": "Product has a corresponding order item(s)"}, status.HTTP_405_METHOD_NOT_ALLOWED)
-        product.delete()
-        return Response(status.HTTP_200_OK)
+        return super().destroy(request, *args, **kwargs)
+    
+# class ProductList(ListCreateAPIView): # class based view
+#     # def get(self, request):
+#     #     query_set = Product.objects.select_related('collection')
+#     #     serializer = ProductSerializer(query_set, many = True) 
+#     #     return Response(serializer.data)
+    
+#     # def post(self, request): # this endpoint fails
+#     #     serializer = ProductSerializer(data = request.data)
+#     #     serializer.is_valid(raise_exception=True)
+#     #     return Response(serializer.data)
+    
+#     queryset = Product.objects.select_related('collection')
+#     serializer_class = ProductSerializer
+    
+# class ProductDetail(RetrieveUpdateDestroyAPIView):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+    
         
        
-@api_view(["GET", "POST"])
-def collection_list(request): #function based view
-    if request.method == "GET":
-        queryset = Collection.objects.all()
-        serializer = CollectionSerializer(queryset, many = True)
+# @api_view(["GET", "POST"])
+# def collection_list(request): #function based view
+#     if request.method == "GET":
+#         queryset = Collection.objects.all()
+#         serializer = CollectionSerializer(queryset, many = True)
         
-        return Response(serializer.data)
-    elif request.method == "POST":
-        serializer = CollectionSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+#         return Response(serializer.data)
+#     elif request.method == "POST":
+#         serializer = CollectionSerializer(data = request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
 
+    # function based view
 # @api_view(["GET", "PUT", "DELETE"])
 # def collection_detail(request, id):
 #     collection = get_object_or_404(Collection, pk = id)
@@ -64,15 +73,23 @@ def collection_list(request): #function based view
 #         serializer.save()
 #         return Response(serializer.data)
     
-class CollectionDetail(RetrieveUpdateDestroyAPIView):
+    # this is a generic view
+# class CollectionDetail(RetrieveUpdateDestroyAPIView):
+#     queryset = Collection.objects.all()
+#     serializer_class = CollectionSerializer
+ 
+    
+class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
-   
-    
-    def delete(self,request, pk):
-        print(self.kwargs)
-        collection = get_object_or_404(Collection, pk = pk)
+
+    def destroy(self, request, *args, **kwargs):
+        collection = get_object_or_404(Collection, pk = self.kwargs["pk"])
         if collection.products.count() > 0:
             return Response({"error": "Collection has corresponding products in it"}, status.HTTP_405_METHOD_NOT_ALLOWED)
         collection.delete()
-        return Response({"success": "Success"}, status.HTTP_200_OK)
+        return super().destroy(request, *args, **kwargs)
+    
+class Review(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
