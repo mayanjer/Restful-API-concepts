@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin
 from store.serializers import *
 from store.models import Product, Collection, Cart
 from django_filters.rest_framework import DjangoFilterBackend
@@ -24,6 +24,55 @@ class ProductViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
     
    
+    
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.all()
+    serializer_class = CollectionSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        collection = get_object_or_404(Collection, pk = self.kwargs["pk"])
+        if collection.products.count() > 0:
+            return Response({"error": "Collection has corresponding products in it"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        collection.delete()
+        return super().destroy(request, *args, **kwargs)
+    
+class ReviewViewSet(ModelViewSet):
+    serializer_class = ReviewSerializer
+    
+    def get_queryset(self):
+        return Review.objects.filter(product_id = self.kwargs["product_pk"])
+    
+    def get_serializer_context(self):
+        return {"product_id": self.kwargs["product_pk"]}
+    
+class CartViewSet(ListModelMixin, 
+                  RetrieveModelMixin, 
+                  DestroyModelMixin, 
+                  CreateModelMixin, 
+                  GenericViewSet):
+    
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+    
+class CartItemViewSet(ListModelMixin, 
+                  RetrieveModelMixin, 
+                  DestroyModelMixin, 
+                  CreateModelMixin, 
+                  GenericViewSet):
+    
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+    
+    # def get_queryset(self):
+    #     queryset = Cart.objects.all()
+    #     if self.kwargs != {}:
+    #         queryset = Cart.objects.filter(pk = self.kwargs.get("pk"))
+    #     return queryset
+    
+    
+    
+    
+    
     
 # class ProductList(ListCreateAPIView): # class based view
 #     # def get(self, request):
@@ -82,28 +131,3 @@ class ProductViewSet(ModelViewSet):
 #     queryset = Collection.objects.all()
 #     serializer_class = CollectionSerializer
  
-    
-class CollectionViewSet(ModelViewSet):
-    queryset = Collection.objects.all()
-    serializer_class = CollectionSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        collection = get_object_or_404(Collection, pk = self.kwargs["pk"])
-        if collection.products.count() > 0:
-            return Response({"error": "Collection has corresponding products in it"}, status.HTTP_405_METHOD_NOT_ALLOWED)
-        collection.delete()
-        return super().destroy(request, *args, **kwargs)
-    
-class ReviewViewSet(ModelViewSet):
-    serializer_class = ReviewSerializer
-    
-    def get_queryset(self):
-        return Review.objects.filter(product_id = self.kwargs["product_pk"])
-    
-    def get_serializer_context(self):
-        return {"product_id": self.kwargs["product_pk"]}
-    
-class CartViewSet(CreateAPIView, DestroyAPIView, ListAPIView):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
-    
