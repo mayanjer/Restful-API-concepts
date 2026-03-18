@@ -36,7 +36,7 @@ class ProductDetail(RetrieveUpdateDestroyAPIView):
 @api_view(["GET", "POST"])
 def collection_list(request): #function based view
     if request.method == "GET":
-        queryset = Collection.objects.all().annotate(product_count = Count("products"))
+        queryset = Collection.objects.all()
         serializer = CollectionSerializer(queryset, many = True)
         
         return Response(serializer.data)
@@ -46,32 +46,33 @@ def collection_list(request): #function based view
         serializer.save()
         return Response(serializer.data)
 
-@api_view(["GET", "PUT", "DELETE"])
-def collection_detail(request, id):
-    collection = get_object_or_404(Collection, pk = id)
+# @api_view(["GET", "PUT", "DELETE"])
+# def collection_detail(request, id):
+#     collection = get_object_or_404(Collection, pk = id)
     
-    if request.method == "GET":
-        serializer = CollectionSerializer(collection)
-        return Response(serializer.data)
-    elif request.method == "DELETE":
-        if collection.products.count()>0:
-            return Response({"error": "collection has products related to it"}, status.HTTP_403_FORBIDDEN)
-        collection.delete()
-        return Response(status.HTTP_202_ACCEPTED)  
-    elif request.method == "PUT":
-        serializer = CollectionSerializer(collection, data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+#     if request.method == "GET":
+#         serializer = CollectionSerializer(collection)
+#         return Response(serializer.data)
+#     elif request.method == "DELETE":
+#         if collection.products.count()>0:
+#             return Response({"error": "collection has products related to it"}, status.HTTP_403_FORBIDDEN)
+#         collection.delete()
+#         return Response(status.HTTP_202_ACCEPTED)  
+#     elif request.method == "PUT":
+#         serializer = CollectionSerializer(collection, data = request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
     
 class CollectionDetail(RetrieveUpdateDestroyAPIView):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
    
     
-    def delete(self, pk):
-        collection = Collection.objects.get(pk = pk)
-        if collection.count() > 0:
+    def delete(self,request, pk):
+        print(self.kwargs)
+        collection = get_object_or_404(Collection, pk = pk)
+        if collection.products.count() > 0:
             return Response({"error": "Collection has corresponding products in it"}, status.HTTP_405_METHOD_NOT_ALLOWED)
         collection.delete()
         return Response({"success": "Success"}, status.HTTP_200_OK)

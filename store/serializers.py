@@ -34,6 +34,7 @@ class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = ["id", "title", "product_count"]   
+        
     product_count = serializers.SerializerMethodField(method_name="calculate_product_count")
     
     def calculate_product_count(self, collection):
