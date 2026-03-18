@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from store.serializers import *
 from store.models import Product, Collection
 
@@ -20,18 +21,11 @@ class ProductList(APIView): # class based view
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
     
-class ProductDetail(APIView):
-    def get(self, request, id):
-        product = get_object_or_404(Product, pk = id)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
-    
-    def put(self, request, id):
-        product = get_object_or_404(Product, pk = id)
-        serializer = ProductSerializer(product, data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+class ProductDetail(RetrieveUpdateDestroyAPIView):
+    def get_queryset(self):
+        print(self.kwargs)
+        return Product.objects.all()
+    serializer_class = ProductSerializer
     
     def delete(self, request, id):
         product = get_object_or_404(Product, pk = id)
@@ -40,9 +34,7 @@ class ProductDetail(APIView):
         product.delete()
         return Response(status.HTTP_200_OK)
         
-        
-             
-        
+       
 @api_view(["GET", "POST"])
 def collection_list(request): #function based view
     if request.method == "GET":
