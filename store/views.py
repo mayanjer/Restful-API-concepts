@@ -22,8 +22,7 @@ class ProductList(APIView): # class based view
         return Response(serializer.data)
     
 class ProductDetail(RetrieveUpdateDestroyAPIView):
-    def get_queryset(self):
-        return Product.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
     def delete(self, request, pk):
@@ -64,3 +63,15 @@ def collection_detail(request, id):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+class CollectionDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Collection.objects.all()
+    serializer_class = CollectionSerializer
+   
+    
+    def delete(self, pk):
+        collection = Collection.objects.get(pk = pk)
+        if collection.count() > 0:
+            return Response({"error": "Collection has corresponding products in it"}, status.HTTP_405_METHOD_NOT_ALLOWED)
+        collection.delete()
+        return Response({"success": "Success"}, status.HTTP_200_OK)

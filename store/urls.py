@@ -15,7 +15,7 @@ urlpatterns = [
     path('products/<int:pk>/', ProductDetail.as_view()),
     
     # collections
-    path('collections/', collection_list),
-    path('collections/<int:id>', collection_detail)
+    path('collections/', CollectionDetail.as_view()),
+    path('collections/<int:pk>', CollectionDetail.as_view())
 ]
 
