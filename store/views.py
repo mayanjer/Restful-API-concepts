@@ -15,6 +15,8 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
+    
+    
     def destroy(self, request, *args, **kwargs):
         product = get_object_or_404(Product, pk = self.kwargs["pk"])
         if product.orderitem_set.count() > 0:
@@ -90,6 +92,11 @@ class CollectionViewSet(ModelViewSet):
         collection.delete()
         return super().destroy(request, *args, **kwargs)
     
-class Review(ModelViewSet):
-    queryset = Review.objects.all()
+class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
+    
+    def get_queryset(self):
+        return Review.objects.filter(product_id = self.kwargs["product_pk"])
+    
+    def get_serializer_context(self):
+        return {"product_id": self.kwargs["product_pk"]}
