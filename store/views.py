@@ -23,14 +23,13 @@ class ProductList(APIView): # class based view
     
 class ProductDetail(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
-        print(self.kwargs)
         return Product.objects.all()
     serializer_class = ProductSerializer
     
-    def delete(self, request, id):
-        product = get_object_or_404(Product, pk = id)
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk = pk)
         if product.orderitem_set.count() > 0:
-            return Response(status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({"error": "Product has a corresponding order item(s)"}, status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status.HTTP_200_OK)
         
