@@ -14,13 +14,18 @@ router = routers.DefaultRouter()
 router.register("products", ProductViewSet, basename="products")
 router.register('collections', CollectionViewSet, basename = "collections")
 router.register('carts', CartViewSet, basename = "carts")
-router.register('cart_item', CartItemViewSet, basename= "cart_items")
+
 
 products_router = routers.NestedDefaultRouter(router, "products", lookup = "product")
 products_router.register("reviews", ReviewViewSet, basename="product-review")
 
+carts_router = routers.NestedDefaultRouter(router, "carts", lookup = "cart")
+carts_router.register("items", CartItemViewSet, basename="cart-items")
+
+
+
 urlpatterns = [
-    path('', include(router.urls + products_router.urls)),
+    path('', include(router.urls + products_router.urls + carts_router.urls)),
     path('admin/', admin.site.urls),
         
 ]

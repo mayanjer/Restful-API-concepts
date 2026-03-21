@@ -10,7 +10,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('collection').all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["collection_id"]
@@ -51,26 +51,17 @@ class CartViewSet(ListModelMixin,
                   CreateModelMixin, 
                   GenericViewSet):
     
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.prefetch_related("items__product").all()
     serializer_class = CartSerializer
     
-class CartItemViewSet(ListModelMixin, 
-                  RetrieveModelMixin, 
-                  DestroyModelMixin, 
-                  CreateModelMixin, 
-                  GenericViewSet):
-    
-    queryset = CartItem.objects.all()
+class CartItemViewSet(ModelViewSet): 
     serializer_class = CartItemSerializer
     
-    # def get_queryset(self):
-    #     queryset = Cart.objects.all()
-    #     if self.kwargs != {}:
-    #         queryset = Cart.objects.filter(pk = self.kwargs.get("pk"))
-    #     return queryset
-    
-    
-    
+    def get_queryset(self):
+        queryset = CartItem.objects.all()
+        if self.kwargs != {}:
+            queryset = CartItem.objects.filter(cart_id = self.kwargs.get("cart_pk"))
+        return queryset
     
     
     
