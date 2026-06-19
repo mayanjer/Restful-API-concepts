@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.decorators import api_view
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin
 from store.serializers import *
 from store.models import Product, Collection, Cart
@@ -85,18 +86,19 @@ class CartItemViewSet(ModelViewSet):
     
         
        
-# @api_view(["GET", "POST"])
-# def collection_list(request): #function based view
-#     if request.method == "GET":
-#         queryset = Collection.objects.all()
-#         serializer = CollectionSerializer(queryset, many = True)
+@api_view(["GET", "POST"])
+def collection_list(request): #function based view
+    print(request.user)
+    if request.method == "GET":
+        queryset = Collection.objects.all()
+        serializer = CollectionSerializer(queryset, many = True)
         
-#         return Response(serializer.data)
-#     elif request.method == "POST":
-#         serializer = CollectionSerializer(data = request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response(serializer.data)
+        return Response(serializer.data)
+    elif request.method == "POST":
+        serializer = CollectionSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     # function based view
 # @api_view(["GET", "PUT", "DELETE"])

@@ -28,11 +28,9 @@ class ProductSerializer(serializers.ModelSerializer):
         
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-            
+           
         instance.save()
         return instance
-    
-    
     
 class CollectionSerializer(serializers.ModelSerializer): 
     class Meta:
@@ -63,7 +61,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ["id", "product", "total_price"]
-    
+   
     product = MiniProductSerializer()
     total_price = serializers.SerializerMethodField(method_name="calculate_total_price")
     
@@ -82,4 +80,3 @@ class CartSerializer(serializers.ModelSerializer):
     
     def calculate_total_cart_price(self, cart):
         return sum([item.quantity * item.product.unit_price for item in cart.items.all()])
-    

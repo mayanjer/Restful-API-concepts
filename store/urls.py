@@ -22,10 +22,10 @@ products_router.register("reviews", ReviewViewSet, basename="product-review")
 carts_router = routers.NestedDefaultRouter(router, "carts", lookup = "cart")
 carts_router.register("items", CartItemViewSet, basename="cart-items")
 
-
+try_route = [path("try_collect", collection_list)]
 
 urlpatterns = [
-    path('', include(router.urls + products_router.urls + carts_router.urls)),
+    path('', include(router.urls + products_router.urls + carts_router.urls+try_route)),
     path('admin/', admin.site.urls),
         
 ]
