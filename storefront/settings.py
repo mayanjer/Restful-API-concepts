@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'core',
     'tags',
     'likes',
-    'rest_framework'
+    'rest_framework',
+    'djoser',
   
 ]
 
