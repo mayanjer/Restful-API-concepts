@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import api_view
-from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin
+from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
 from store.serializers import *
 from store.models import Product, Collection, Cart
 from django_filters.rest_framework import DjangoFilterBackend
@@ -124,3 +124,8 @@ def collection_list(request): #function based view
 #     queryset = Collection.objects.all()
 #     serializer_class = CollectionSerializer
  
+ 
+class CustomerViewSet(RetrieveModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):
+     queryset = Customer.objects.all()
+     serializer_class = CustomerSerializer
+     
