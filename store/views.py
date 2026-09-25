@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import api_view, action
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
+from .permissions import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from store.serializers import *
 from store.models import Product, Collection, Cart
@@ -18,6 +19,7 @@ class ProductViewSet(ModelViewSet):
     filterset_fields = ["collection_id"]
     search_fields = ["title", "description"]
     ordering_fields = ["unit_price", "title"]
+    permission_classes = [IsAdminOrReadOnly]
     
     def destroy(self, request, *args, **kwargs):
         product = get_object_or_404(Product, pk = self.kwargs["pk"])
@@ -30,6 +32,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         collection = get_object_or_404(Collection, pk = self.kwargs["pk"])
@@ -126,17 +129,13 @@ def collection_list(request): #function based view
 #     serializer_class = CollectionSerializer
  
  
-class CustomerViewSet(RetrieveModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):
+class CustomerViewSet(ModelViewSet):
      queryset = Customer.objects.all()
      serializer_class = CustomerSerializer
      permission_classes = [IsAuthenticated]
      
-     def get_permissions(self):
-         if self.request.method == "GET":
-             return [AllowAny()]
-            
      
-     @action(detail=False, methods=["GET", "PUT"])
+     @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAdminOrReadOnly])
      def me(self, request):
         (customer, created) = Customer.objects.get_or_create(user_id = request.user.id)
         if request.method == "GET":
