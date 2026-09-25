@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import api_view, action
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from store.serializers import *
 from store.models import Product, Collection, Cart
 from django_filters.rest_framework import DjangoFilterBackend
@@ -128,6 +129,12 @@ def collection_list(request): #function based view
 class CustomerViewSet(RetrieveModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):
      queryset = Customer.objects.all()
      serializer_class = CustomerSerializer
+     permission_classes = [IsAuthenticated]
+     
+     def get_permissions(self):
+         if self.request.method == "GET":
+             return [AllowAny()]
+            
      
      @action(detail=False, methods=["GET", "PUT"])
      def me(self, request):

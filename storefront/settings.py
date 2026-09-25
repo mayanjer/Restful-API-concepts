@@ -149,7 +149,8 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
      'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+   
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -162,7 +163,6 @@ DJOSER={
     'current_user': 'core.serializers.UserSerializer'
     }
 }
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
