@@ -54,7 +54,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class MiniProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["title", "unit_price"]
+        fields = ["id", "title", "unit_price"]
     
     
 class CartItemSerializer(serializers.ModelSerializer):
@@ -86,3 +86,17 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ["id", "user_id", "birth_date", "phone", "membership"]
+
+        
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = MiniProductSerializer()
+    class Meta:
+        model = OrderItem
+        fields = ["id", "product", "unit_price", "quantity"]
+        
+        
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many = True, read_only=True)
+    class Meta:
+        model = Order
+        fields = ["id", "customer", "placed_at", "payment_status", "items"]

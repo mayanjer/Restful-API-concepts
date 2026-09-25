@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.decorators import api_view, action
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
 from .permissions import *
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from store.serializers import *
 from store.models import Product, Collection, Cart
 from django_filters.rest_framework import DjangoFilterBackend
@@ -132,10 +132,10 @@ def collection_list(request): #function based view
 class CustomerViewSet(ModelViewSet):
      queryset = Customer.objects.all()
      serializer_class = CustomerSerializer
-     permission_classes = [IsAuthenticated]
+     permission_classes = [IsAdminUser]
      
      
-     @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAdminOrReadOnly])
+     @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAuthenticated])
      def me(self, request):
         (customer, created) = Customer.objects.get_or_create(user_id = request.user.id)
         if request.method == "GET":
@@ -147,3 +147,19 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception = True)
             serializer.save()
             return Response(serializer.data)
+        
+class OrderViewSet(ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(customer_id = self.request.user.id)
+
+    
+    
+    
+    
+    
+    
