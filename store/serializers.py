@@ -69,6 +69,10 @@ class CartItemSerializer(serializers.ModelSerializer):
         product_total = cart_item.product.unit_price * cart_item.quantity
         return product_total
     
+class CreateCartItemSerializer(serializers.Serializer):
+    def save(self, **kwargs):     
+        return CartItem.objects.create(cart_id = self.context["cart_id"], product_id = self.context["product_id"], quantity = self.context["quantity"])
+    
     
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,7 +109,8 @@ class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
     
     def save(self, **kwargs):
-        print(self.validated_data["cart_id"])
-        print(self.context["user_id"])
-        customer = Customer.objects.get(id = self.context["user_id"])
+        
+        (customer, created) = Customer.objects.get_or_create(id = self.context["user_id"])
         Order.objects.create(customer = customer)
+        
+        order_items = OrderItem.objects.filter()

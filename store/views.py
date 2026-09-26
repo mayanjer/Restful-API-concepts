@@ -59,14 +59,24 @@ class CartViewSet(ListModelMixin,
     queryset = Cart.objects.prefetch_related("items__product").all()
     serializer_class = CartSerializer
     
-class CartItemViewSet(ModelViewSet): 
-    serializer_class = CartItemSerializer
+class CartItemViewSet(ModelViewSet):    
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateCartItemSerializer            
+        return CartItemSerializer
     
     def get_queryset(self):
         queryset = CartItem.objects.all()
         if self.kwargs != {}:
             queryset = CartItem.objects.filter(cart_id = self.kwargs.get("cart_pk"))
         return queryset
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["cart_id"] = self.kwargs["cart_pk"]
+        context["product_id"] = self.request.data["product_id"]
+        context["quantity"] = self.request.data["quantity"]
+        return context
     
     
     
