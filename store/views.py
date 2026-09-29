@@ -166,7 +166,12 @@ class OrderViewSet(ModelViewSet):
         return OrderSerializer
     
     def get_serializer_context(self):
-        context = {"user_id":self.request.user.id}
+        context = super().get_serializer_context()
+        if self.request.method == "POST":
+            context = {"user_id":self.request.user.id, "cart_id": self.request.data["cart_id"]}
+            return context 
+        elif self.request.method == "GET":
+            context = {"user_id": self.request.user.id}
         return context
     
     def get_queryset(self):

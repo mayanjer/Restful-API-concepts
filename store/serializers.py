@@ -117,7 +117,10 @@ class CreateOrderSerializer(serializers.Serializer):
     
     def save(self, **kwargs):
         
-        (customer, created) = Customer.objects.get_or_create(id = self.context["user_id"])
-        Order.objects.create(customer = customer)
+        (customer, created) = Customer.objects.get_or_create(user_id = self.context["user_id"])
         
-        order_items = OrderItem.objects.filter()
+        # cart_items = CartItem.objects.filter(cart_id = cart_id)
+        order = Order.objects.create(customer = customer)
+        
+        order_items = OrderItem.objects.filter(order = order)
+        print(order_items)
