@@ -116,11 +116,12 @@ class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
     
     def save(self, **kwargs):
-        
+        print(self.context)
         (customer, created) = Customer.objects.get_or_create(user_id = self.context["user_id"])
         
-        # cart_items = CartItem.objects.filter(cart_id = cart_id)
+        cart_items = CartItem.objects.filter(cart_id = self.context["cart_id"])
+        print(cart_items)
         order = Order.objects.create(customer = customer)
         
-        order_items = OrderItem.objects.filter(order = order)
-        print(order_items)
+        
+        
