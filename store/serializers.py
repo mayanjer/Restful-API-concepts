@@ -69,9 +69,16 @@ class CartItemSerializer(serializers.ModelSerializer):
         product_total = cart_item.product.unit_price * cart_item.quantity
         return product_total
     
-class CreateCartItemSerializer(serializers.Serializer):
-    def save(self, **kwargs):     
-        return CartItem.objects.create(cart_id = self.context["cart_id"], product_id = self.context["product_id"], quantity = self.context["quantity"])
+class CreateCartItemSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+    class Meta: 
+        model = CartItem
+        fields = ("id", "product_id", "quantity")
+        
+    def create(self, validated_data):   
+     
+        print(validated_data)
+        return CartItem.objects.create(cart_id = self.context["cart_id"], **validated_data)
     
     
 class CartSerializer(serializers.ModelSerializer):

@@ -73,11 +73,10 @@ class CartItemViewSet(ModelViewSet):
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["cart_id"] = self.kwargs["cart_pk"]
-        context["product_id"] = self.request.data["product_id"]
-        context["quantity"] = self.request.data["quantity"]
+        if self.request.method == "POST":
+            context["cart_id"] = self.kwargs["cart_pk"]
         return context
-    
+        
     
     
 # class ProductList(ListCreateAPIView): # class based view
