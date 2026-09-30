@@ -1,3 +1,5 @@
+
+from django.db import transaction
 from rest_framework import serializers
 from .models import *
 from decimal import Decimal
@@ -116,12 +118,19 @@ class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
     
     def save(self, **kwargs):
-        print(self.context)
-        (customer, created) = Customer.objects.get_or_create(user_id = self.context["user_id"])
+        # in this implementaion, we extract the items in the cart for that orderwe create an order, , save them into the order items and then delete the cart the related order items
+        with transaction.atomic():
+            (customer, created) = Customer.objects.get_or_create(user_id = self.context["user_id"])
+            
+            cart = Cart.objects.get(id = self.context["cart_id"])
         
-        cart_items = CartItem.objects.filter(cart_id = self.context["cart_id"])
-        print(cart_items)
-        order = Order.objects.create(customer = customer)
+            cart_items = CartItem.objects.filter(cart_id = self.context["cart_id"])
+            
+            order = Order.objects.create(customer = customer)
         
-        
-        
+            [OrderItem.objects.create(product = item.product, order = order, quantity = item.quantity, unit_price = item.product.unit_price) for item in cart_items]
+            
+            cart.delete()
+            
+            
+                
