@@ -132,7 +132,7 @@ class CreateOrderSerializer(serializers.Serializer):
     def save(self, **kwargs):
         # in this implementaion, we extract the items in the cart for that orderwe create an order, , save them into the order items and then delete the cart the related order items
         with transaction.atomic():
-            (customer, created) = Customer.objects.get_or_create(user_id = self.context["user_id"])
+            customer = Customer.objects.get(user_id = self.context["user_id"])
             print(self.validated_data)
             
             cart = Cart.objects.get(id = self.validated_data["cart_id"])
