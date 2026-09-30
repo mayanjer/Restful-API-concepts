@@ -134,8 +134,7 @@ class CreateOrderSerializer(serializers.Serializer):
         # in this implementaion, we extract the items in the cart for that orderwe create an order, , save them into the order items and then delete the cart the related order items
         with transaction.atomic():
             customer = Customer.objects.get(user_id = self.context["user_id"])
-            print(self.validated_data)
-            
+                        
             cart = Cart.objects.get(id = self.validated_data["cart_id"])
         
             cart_items = CartItem.objects.select_related("product").filter(cart_id = self.validated_data["cart_id"])
@@ -154,8 +153,8 @@ class CreateOrderSerializer(serializers.Serializer):
             OrderItem.objects.bulk_create(order_items)
             cart.delete()
             
+            # this is a custom made signal
             create_order.send_robust(self.__class__, order = order)
-            
             return order
             
             
