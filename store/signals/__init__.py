@@ -1,1 +1,3 @@
-from django.db.models import signals
+from django.dispatch import Signal
+
+create_order = Signal()

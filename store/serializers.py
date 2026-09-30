@@ -2,6 +2,7 @@
 from django.db import transaction
 from rest_framework import serializers
 from .models import *
+from .signals import create_order
 from decimal import Decimal
 from django.db.models import Sum
 
@@ -152,6 +153,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 ]
             OrderItem.objects.bulk_create(order_items)
             cart.delete()
+            
+            create_order.send_robust(self.__class__, order = order)
             
             return order
             
